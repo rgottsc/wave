@@ -34,7 +34,12 @@ import {ExpressionType} from '../../types/expression-type.model';
 // import {TimePlotType} from '../../types/timeplot-type.model';
 // import {TimePlotComponent} from '../time-plot-operator/time-plot-operator.component';
 // import {StatisticsType} from '../../types/statistics-type.model';
-// import {StatisticsPlotComponent} from '../statistics-plot/statistics-plot.component';
+import {StatisticsPlotComponent} from '../statistics-plot/statistics-plot.component';
+import {createIconDataUrl} from '../../../util/icons';
+import {HistogramOperatorComponent} from '../histogram-operator/histogram-operator.component';
+import {MeanRasterPixelValuesOverTimeDialogComponent} from '../mean-raster-pixel-values-over-time-dialog/mean-raster-pixel-values-over-time-dialog.component';
+import {PointInPolygonFilterOperatorComponent} from '../point-in-polygon-filter/point-in-polygon-filter.component';
+import {RasterVectorJoinComponent} from '../raster-vector-join/raster-vector-join.component';
 // import {RgbCompositeComponent} from '../rgb-composite/rgb-composite.component';
 // import {RgbaCompositeType} from '../../types/rgba-composite-type.model';
 // import {RasterMaskComponent} from '../raster-mask/raster-mask.component';
@@ -47,7 +52,7 @@ import {ExpressionType} from '../../types/expression-type.model';
  */
 export interface OperatorListType {
     component: Type<any>;
-    type: { NAME: string, ICON_URL: string };
+    type: {NAME: string; ICON_URL: string};
     description: string;
 }
 
@@ -68,16 +73,18 @@ export type OperatorListButtonGroups = Array<{
     selector: 'wave-operator-list',
     templateUrl: './operator-list.component.html',
     styleUrls: ['./operator-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OperatorListComponent implements OnInit {
-
     static readonly DEFAULT_MIXED_OPERATOR_DIALOGS: Array<OperatorListType> = [
-        // {
-        //     component: RasterValueExtractionOperatorComponent,
-        //     type: RasterValueExtractionType,
-        //     description: 'Attach raster values to vector data',
-        // },
+        {
+            component: RasterVectorJoinComponent,
+            type: {
+                NAME: 'Raster Vector Join',
+                ICON_URL: createIconDataUrl('Raster Vector Join'),
+            },
+            description: 'Attach raster values to multi-point data',
+        },
         // {
         //     component: RasterPolygonClipOperatorComponent,
         //     type: {
@@ -94,36 +101,45 @@ export class OperatorListComponent implements OnInit {
     ];
 
     static readonly DEFAULT_PLOT_OPERATOR_DIALOGS: Array<OperatorListType> = [
-    //     {
-    //         component: HistogramOperatorComponent,
-    //         type: HistogramType,
-    //         description: 'Create a histogram from vector or raster data',
-    //     },
-    //     {
-    //         component: PieChartComponent,
-    //         type: PieChartType,
-    //         description: 'Plot your data as a pie chart',
-    //     },
-    //     {
-    //         component: ScatterPlotComponent,
-    //         type: ScatterPlotType,
-    //         description: 'Scatter plot your data'
-    //     },
-    //     {
-    //         component: BoxPlotComponent,
-    //         type: BoxPlotType,
-    //         description: 'Box plot your data'
-    //     },
-    //     {
-    //         component: StatisticsPlotComponent,
-    //         type: StatisticsType,
-    //         description: 'Get statistics for any layer'
-    //     },
-    //     {
-    //         component: TimePlotComponent,
-    //         type: TimePlotType,
-    //         description: 'Plot time data'
-    //     }
+        {
+            component: HistogramOperatorComponent,
+            type: {
+                NAME: 'Histogram',
+                ICON_URL: createIconDataUrl('Histogram'),
+            },
+            description: 'Create a histogram from vector or raster data',
+        },
+        //     {
+        //         component: PieChartComponent,
+        //         type: PieChartType,
+        //         description: 'Plot your data as a pie chart',
+        //     },
+        //     {
+        //         component: ScatterPlotComponent,
+        //         type: ScatterPlotType,
+        //         description: 'Scatter plot your data'
+        //     },
+        //     {
+        //         component: BoxPlotComponent,
+        //         type: BoxPlotType,
+        //         description: 'Box plot your data'
+        //     },
+        {
+            component: StatisticsPlotComponent,
+            type: {
+                NAME: 'Basic Statistics',
+                ICON_URL: createIconDataUrl('Basic Statistics'),
+            },
+            description: 'Get statistics for raster layer',
+        },
+        {
+            component: MeanRasterPixelValuesOverTimeDialogComponent,
+            type: {
+                NAME: 'Temporal Raster Mean Plot',
+                ICON_URL: createIconDataUrl('Temporal Raster Mean Plot'),
+            },
+            description: 'Create an area chart over the mean pixel values of the images of a raster time series',
+        },
     ];
 
     static readonly DEFAULT_RASTER_OPERATOR_DIALOGS: Array<OperatorListType> = [
@@ -158,11 +174,14 @@ export class OperatorListComponent implements OnInit {
         //     type: HeatmapType,
         //     description: 'Create a heatmap for points',
         // },
-        // {
-        //     component: PointInPolygonFilterOperatorComponent,
-        //     type: PointInPolygonFilterType,
-        //     description: 'Filter points that are enclosed by a polygon',
-        // },
+        {
+            component: PointInPolygonFilterOperatorComponent,
+            type: {
+                NAME: 'Point in Polygon',
+                ICON_URL: createIconDataUrl('Point in Polygon'),
+            },
+            description: 'Filter points that are enclosed by a polygon',
+        },
         // {
         //     component: TextualAttributeFilterOperatorComponent,
         //     type: TextualAttributeFilterType,
@@ -173,58 +192,53 @@ export class OperatorListComponent implements OnInit {
     /**
      * Specify (optionally) a custom set of operator groups and list entries (buttons)
      */
-    @Input() operators: OperatorListButtonGroups = [ // default operator set
+    @Input() operators: OperatorListButtonGroups = [
+        // default operator set
         {name: 'Mixed', list: OperatorListComponent.DEFAULT_MIXED_OPERATOR_DIALOGS},
         {name: 'Plots', list: OperatorListComponent.DEFAULT_PLOT_OPERATOR_DIALOGS},
         {name: 'Raster', list: OperatorListComponent.DEFAULT_RASTER_OPERATOR_DIALOGS},
         {name: 'Vector', list: OperatorListComponent.DEFAULT_VECTOR_OPERATOR_DIALOGS},
     ];
 
-    operatorGroups$: Observable<Array<{ name: string, list: Array<OperatorListType> }>>;
+    operatorGroups$: Observable<Array<{name: string; list: Array<OperatorListType>}>>;
     searchString$ = new BehaviorSubject<string>('');
 
     /**
      * DI of services
      */
-    constructor(private layoutService: LayoutService) {
-    }
+    constructor(private layoutService: LayoutService) {}
 
     ngOnInit() {
-        this.operatorGroups$ = combineLatest([
-            of(this.operators),
-            this.searchString$.pipe(map(s => s.toLowerCase())),
-        ]).pipe(
+        this.operatorGroups$ = combineLatest([of(this.operators), this.searchString$.pipe(map((s) => s.toLowerCase()))]).pipe(
             map(([operatorGroups, searchString]) => {
-                    const nameComparator = (a: string, b: string): number => {
-                        const stripped = (s: string): string => s.replace(' ', '');
+                const nameComparator = (a: string, b: string): number => {
+                    const stripped = (s: string): string => s.replace(' ', '');
 
-                        return stripped(a).localeCompare(stripped(b));
-                    };
+                    return stripped(a).localeCompare(stripped(b));
+                };
 
-                    const filteredGroups = [];
-                    for (const group of operatorGroups) {
-                        const operators = [];
-                        for (const operator of group.list) {
-                            const searchMatchesTypeName = () => operator.type.NAME.toLowerCase().includes(searchString);
-                            const searchMatchesDescription = () => operator.description.toLowerCase().includes(searchString);
+                const filteredGroups = [];
+                for (const group of operatorGroups) {
+                    const operators = [];
+                    for (const operator of group.list) {
+                        const searchMatchesTypeName = () => operator.type.NAME.toLowerCase().includes(searchString);
+                        const searchMatchesDescription = () => operator.description.toLowerCase().includes(searchString);
 
-
-                            if (searchMatchesTypeName() || searchMatchesDescription()) {
-                                operators.push(operator);
-                            }
-                        }
-
-                        if (operators.length > 0) {
-                            filteredGroups.push({
-                                name: group.name,
-                                list: operators.sort((a, b) => nameComparator(a.type.NAME, b.type.NAME)),
-                            });
+                        if (searchMatchesTypeName() || searchMatchesDescription()) {
+                            operators.push(operator);
                         }
                     }
 
-                    return filteredGroups.sort((a, b) => nameComparator(a.name, b.name));
+                    if (operators.length > 0) {
+                        filteredGroups.push({
+                            name: group.name,
+                            list: operators.sort((a, b) => nameComparator(a.type.NAME, b.type.NAME)),
+                        });
+                    }
                 }
-            ),
+
+                return filteredGroups.sort((a, b) => nameComparator(a.name, b.name));
+            }),
         );
     }
 
@@ -234,5 +248,4 @@ export class OperatorListComponent implements OnInit {
     load(component: Type<any>) {
         this.layoutService.setSidenavContentComponent({component, keepParent: true});
     }
-
 }

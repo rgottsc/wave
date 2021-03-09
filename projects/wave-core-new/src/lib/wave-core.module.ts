@@ -86,6 +86,20 @@ import {MultiLayerSelectionComponent} from './operators/dialogs/helpers/multi-la
 import {OperatorListComponent} from './operators/dialogs/operator-list/operator-list.component';
 import {ExpressionOperatorComponent} from './operators/dialogs/expression-operator/expression-operator.component';
 import {OperatorOutputNameComponent} from './operators/dialogs/helpers/operator-output-name/operator-output-name.component';
+import {AddDataComponent} from './datasets/add-data/add-data.component';
+import {DatasetListComponent} from './datasets/dataset-list/dataset-list.component';
+import {DataSetComponent} from './datasets/dataset/dataset.component';
+import {PlotListComponent} from './plots/plot-list/plot-list.component';
+import {StatisticsPlotComponent} from './operators/dialogs/statistics-plot/statistics-plot.component';
+import {PlotDetailViewComponent} from './plots/plot-detail-view/plot-detail-view.component';
+import {PlotListEntryComponent} from './plots/plot-list-entry/plot-list-entry.component';
+import {HistogramOperatorComponent} from './operators/dialogs/histogram-operator/histogram-operator.component';
+import {LayerSelectionComponent} from './operators/dialogs/helpers/layer-selection/layer-selection.component';
+import {VegaViewerComponent} from './plots/vega-viewer/vega-viewer.component';
+import {LineageGraphComponent} from './provenance/lineage-graph/lineage-graph.component';
+import {MeanRasterPixelValuesOverTimeDialogComponent} from './operators/dialogs/mean-raster-pixel-values-over-time-dialog/mean-raster-pixel-values-over-time-dialog.component';
+import {RasterVectorJoinComponent} from './operators/dialogs/raster-vector-join/raster-vector-join.component';
+import {PointInPolygonFilterOperatorComponent} from './operators/dialogs/point-in-polygon-filter/point-in-polygon-filter.component';
 
 const MATERIAL_MODULES = [
     MatAutocompleteModule,
@@ -132,23 +146,30 @@ const WAVE_PIPES = [
 ];
 
 const WAVE_COMPONENTS = [
+    AddDataComponent,
     ChangeSpatialReferenceComponent,
     ColorBreakpointInputComponent,
     ColorizerEditorComponent,
     ColormapColorizerComponent,
+    DataSetComponent,
+    DatasetListComponent,
     DialogHeaderComponent,
     DialogHelpComponent,
     DialogSectionHeadingComponent,
+    ExpressionOperatorComponent,
+    HistogramOperatorComponent,
     IfGuestDirective,
     IfLoggedInDirective,
-    ExpressionOperatorComponent,
     LayerListComponent,
+    LayerSelectionComponent,
     LegendComponent,
+    LineageGraphComponent,
     LineIconComponent,
     LoadProjectComponent,
     LoginComponent,
     MapContainerComponent,
     MappingRasterLegendComponent,
+    MeanRasterPixelValuesOverTimeDialogComponent,
     MultiLayerSelectionComponent,
     NavigationComponent,
     NewProjectComponent,
@@ -156,10 +177,15 @@ const WAVE_COMPONENTS = [
     OlVectorLayerComponent,
     OperatorListComponent,
     OperatorOutputNameComponent,
+    PlotDetailViewComponent,
+    PlotListComponent,
+    PlotListEntryComponent,
     PointIconComponent,
+    PointInPolygonFilterOperatorComponent,
     PolygonIconComponent,
     RasterIconComponent,
     RasterLegendComponent,
+    RasterVectorJoinComponent,
     RenameLayerComponent,
     SaveProjectAsComponent,
     SidenavContainerComponent,
@@ -167,6 +193,7 @@ const WAVE_COMPONENTS = [
     SidenavSearchComponent,
     SidenavSearchRightDirective,
     SmallTimeInteractionComponent,
+    StatisticsPlotComponent,
     StrokeDashSelectComponent,
     SymbologyEditorComponent,
     SymbologyRasterComponent,
@@ -176,15 +203,13 @@ const WAVE_COMPONENTS = [
     TimeInputComponent,
     VatLogoComponent,
     VectorLegendComponent,
+    VegaViewerComponent,
     WorkspaceSettingsComponent,
     ZoomHandlesComponent,
 ];
 
 @NgModule({
-    declarations: [
-        ...WAVE_PIPES,
-        ...WAVE_COMPONENTS,
-    ],
+    declarations: [...WAVE_PIPES, ...WAVE_COMPONENTS],
     imports: [
         ...MATERIAL_MODULES,
         ColorPickerModule,
@@ -205,5 +230,4 @@ const WAVE_COMPONENTS = [
         ...WAVE_COMPONENTS,
     ],
 })
-export class WaveCoreModule {
-}
+export class WaveCoreModule {}

@@ -1,16 +1,16 @@
 import {Unit, UnitMappingDict} from '../../unit.model';
 import {MappingRasterColorizerDict} from '../../../colors/colorizer-data.model';
 import {IColorizerData} from '../../../colors/colorizer-data.model';
-import {Time} from '../../../time/time.model';
+import {Time, TimePoint} from '../../../time/time.model';
 
 /**
  * An interface for transformation of raster layer values.
  */
 export interface MappingTransform {
-  datatype: string;
-  offset: number;
-  scale: number;
-  unit: Unit;
+    datatype: string;
+    offset: number;
+    scale: number;
+    unit: Unit;
 }
 
 /**
@@ -38,14 +38,14 @@ export interface SourceRasterLayerDescription {
     isSwitchable: boolean;
     missingUnit?: boolean;
     coords: {
-        crs: string,
-        origin: number[],
-        scale: number[],
-        size: number[],
+        crs: string;
+        origin: number[];
+        scale: number[];
+        size: number[];
     };
     provenance: ProvenanceInfo;
-    time_start?: Time;
-    time_end?: Time;
+    time_start?: TimePoint;
+    time_end?: TimePoint;
 }
 
 /**
@@ -59,12 +59,12 @@ export interface SourceVectorLayerDescription {
     textual: string[];
     numeric: string[];
     coords: {
-        crs: string
+        crs: string;
     };
     colorizer?: IColorizerData;
     provenance: ProvenanceInfo;
-    time_start?: Time;
-    time_end?: Time;
+    time_start?: TimePoint;
+    time_end?: TimePoint;
 }
 
 /**
@@ -80,8 +80,8 @@ export interface MappingSource {
     imgUrl?: string;
     tags?: Array<string>;
     provenance: ProvenanceInfo;
-    time_start?: Time;
-    time_end?: Time;
+    time_start?: TimePoint;
+    time_end?: TimePoint;
 }
 
 /**
@@ -96,16 +96,16 @@ export interface MappingSourceDict {
     tags?: string[];
     colorizer?: MappingRasterColorizerDict;
     provenance?: {
-        uri: string,
-        license: string,
-        citation: string,
+        uri: string;
+        license: string;
+        citation: string;
     };
     coords: {
-        crs: string,
-        epsg?: number,
-        origin?: number[],
-        scale?: number[],
-        size?: number[],
+        crs: string;
+        epsg?: number;
+        origin?: number[];
+        scale?: number[];
+        size?: number[];
     };
     channels?: [MappingSourceRasterLayerDict];
     layer?: [MappingSourceVectorLayerDict];
@@ -124,21 +124,21 @@ export interface MappingSourceRasterLayerDict {
     methodology?: MappingRasterMethodology;
     colorizer?: MappingRasterColorizerDict;
     transform?: {
-        unit?: UnitMappingDict,
-        datatype: string,
-        scale: number,
-        offset: number,
+        unit?: UnitMappingDict;
+        datatype: string;
+        scale: number;
+        offset: number;
     };
     coords: {
-        crs: string,
-        origin: number[],
-        scale: number[],
-        size: number[],
+        crs: string;
+        origin: number[];
+        scale: number[];
+        size: number[];
     };
     provenance?: {
-        uri: string,
-        license: string,
-        citation: string,
+        uri: string;
+        license: string;
+        citation: string;
     };
     time_start?: string;
     time_end?: string;
@@ -155,15 +155,15 @@ export interface MappingSourceVectorLayerDict {
     textual?: string[];
     numeric?: string[];
     coords: {
-        crs: string,
+        crs: string;
     };
     uri?: string;
     license?: string;
     citation?: string;
     provenance?: {
-        uri: string,
-        license: string,
-        citation: string,
+        uri: string;
+        license: string;
+        citation: string;
     };
     time_start?: string;
     time_end?: string;

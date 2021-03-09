@@ -1,7 +1,8 @@
 import {SpatialReference, SpatialReferences} from '../operators/spatial-reference.model';
-import {Time, TimeStepDuration} from '../time/time.model';
+import {Time, timeStepDictTotimeStepDuration, TimeStepDuration, timeStepDurationToTimeStepDict} from '../time/time.model';
 import {Layer} from '../layers/layer.model';
 import {UUID, ToDict, ProjectDict, STRectangleDict} from '../backend/backend.model';
+import {Plot} from '../plots/plot.model';
 
 export class Project implements ToDict<ProjectDict> {
     readonly id: UUID;
@@ -23,9 +24,9 @@ export class Project implements ToDict<ProjectDict> {
             description: dict.description,
             spatialReference: SpatialReferences.fromCode(dict.bounds.spatial_reference),
             time: Time.fromDict(dict.bounds.time_interval),
-            plots: [], // TODO: fill if available
+            plots: dict.plots.map(Plot.fromDict),
             layers: dict.layers.map(Layer.fromDict),
-            timeStepDuration: {durationAmount: 1, durationUnit: 'months'}, // TODO: read from dict
+            timeStepDuration: timeStepDictTotimeStepDuration(dict.time_step),
         });
     }
 
@@ -35,7 +36,7 @@ export class Project implements ToDict<ProjectDict> {
         description: string;
         spatialReference: SpatialReference;
         time: Time;
-        plots?: Array<any>;
+        plots: Array<Plot>;
         layers: Array<Layer>;
         timeStepDuration: TimeStepDuration;
     }) {
@@ -44,7 +45,7 @@ export class Project implements ToDict<ProjectDict> {
         this.description = config.description;
         this._spatialReference = config.spatialReference;
         this._time = config.time;
-        this._plots = config.plots ? config.plots : [];
+        this._plots = config.plots;
         this._layers = config.layers;
         this._timeStepDuration = config.timeStepDuration;
     }
@@ -98,7 +99,9 @@ export class Project implements ToDict<ProjectDict> {
             description: this.description,
             version: undefined, // TODO: get rid of version?
             bounds: this.toBoundsDict(),
-            layers: this._layers.map(layer => layer.toDict()),
+            layers: this._layers.map((layer) => layer.toDict()),
+            plots: this._plots.map((plot) => plot.toDict()),
+            time_step: timeStepDurationToTimeStepDict(this.timeStepDuration),
         };
     }
 
@@ -124,5 +127,4 @@ export class Project implements ToDict<ProjectDict> {
     toJSON(): string {
         return JSON.stringify(this.toDict());
     }
-
 }

@@ -44,13 +44,8 @@
                 "lint": {
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
-                        "tsConfig": [
-                            "projects/wave-core/tsconfig.lib.json",
-                            "projects/wave-core/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "tsConfig": ["projects/wave-core/tsconfig.lib.json", "projects/wave-core/tsconfig.spec.json"],
+                        "exclude": ["**/node_modules/**"]
                     }
                 }
             }
@@ -96,13 +91,8 @@
                 "lint": {
                     "builder": "@angular-devkit/build-angular:tslint",
                     "options": {
-                        "tsConfig": [
-                            "projects/wave-core-new/tsconfig.lib.json",
-                            "projects/wave-core-new/tsconfig.spec.json"
-                        ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "tsConfig": ["projects/wave-core-new/tsconfig.lib.json", "projects/wave-core-new/tsconfig.spec.json"],
+                        "exclude": ["**/node_modules/**"]
                     }
                 }
             }
@@ -128,6 +118,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
+                        "allowedCommonJsDependencies": ["dagre-d3", "pbf"],
                         "outputPath": "dist/wave-app",
                         "index": "projects/wave-app/src/index.html",
                         "main": "projects/wave-app/src/main.ts",
@@ -208,13 +199,8 @@
                         "polyfills": "projects/wave-app/src/polyfills.ts",
                         "tsConfig": "projects/wave-app/tsconfig.spec.json",
                         "karmaConfig": "projects/wave-app/karma.conf.js",
-                        "assets": [
-                            "projects/wave-app/src/favicon.ico",
-                            "projects/wave-app/src/assets"
-                        ],
-                        "styles": [
-                            "projects/wave-app/src/styles.scss"
-                        ],
+                        "assets": ["projects/wave-app/src/favicon.ico", "projects/wave-app/src/assets"],
+                        "styles": ["projects/wave-app/src/styles.scss"],
                         "scripts": []
                     }
                 },
@@ -226,9 +212,7 @@
                             "projects/wave-app/tsconfig.spec.json",
                             "projects/wave-app/e2e/tsconfig.json"
                         ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "exclude": ["**/node_modules/**"]
                     }
                 },
                 "e2e": {
@@ -266,6 +250,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
+                        "allowedCommonJsDependencies": ["dagre-d3", "pbf"],
                         "outputPath": "dist/geoengine-app",
                         "index": "projects/geoengine-app/src/index.html",
                         "main": "projects/geoengine-app/src/main.ts",
@@ -346,13 +331,8 @@
                         "polyfills": "projects/geoengine-app/src/polyfills.ts",
                         "tsConfig": "projects/geoengine-app/tsconfig.spec.json",
                         "karmaConfig": "projects/geoengine-app/karma.conf.js",
-                        "assets": [
-                            "projects/geoengine-app/src/favicon.ico",
-                            "projects/geoengine-app/src/assets"
-                        ],
-                        "styles": [
-                            "projects/geoengine-app/src/styles.scss"
-                        ],
+                        "assets": ["projects/geoengine-app/src/favicon.ico", "projects/geoengine-app/src/assets"],
+                        "styles": ["projects/geoengine-app/src/styles.scss"],
                         "scripts": []
                     }
                 },
@@ -364,9 +344,7 @@
                             "projects/geoengine-app/tsconfig.spec.json",
                             "projects/geoengine-app/e2e/tsconfig.json"
                         ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "exclude": ["**/node_modules/**"]
                     }
                 },
                 "e2e": {
@@ -378,6 +356,138 @@
                     "configurations": {
                         "production": {
                             "devServerTarget": "geoengine-app:serve:production"
+                        }
+                    }
+                }
+            }
+        },
+        "data-atlas-app": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "changeDetection": "OnPush",
+                    "inlineStyle": false,
+                    "inlineTemplate": false,
+                    "prefix": "wave-app",
+                    "style": "scss"
+                },
+                "@schematics/angular:directive": {
+                    "prefix": "wave-app"
+                }
+            },
+            "root": "projects/data-atlas-app",
+            "sourceRoot": "projects/data-atlas-app/src",
+            "prefix": "wave-app",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "allowedCommonJsDependencies": ["dagre-d3", "pbf"],
+                        "outputPath": "dist/data-atlas-app",
+                        "index": "projects/data-atlas-app/src/index.html",
+                        "main": "projects/data-atlas-app/src/main.ts",
+                        "polyfills": "projects/data-atlas-app/src/polyfills.ts",
+                        "tsConfig": "projects/data-atlas-app/tsconfig.app.json",
+                        "aot": true,
+                        "assets": [
+                            "projects/data-atlas-app/src/favicon.ico",
+                            "projects/data-atlas-app/src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "dist/wave-core/assets",
+                                "output": "assets"
+                            }
+                        ],
+                        "styles": [
+                            "projects/data-atlas-app/src/styles.scss",
+                            "dist/wave-core/assets/fonts/roboto/roboto.css",
+                            "dist/wave-core/assets/fonts/pacifico/pacifico.css",
+                            "dist/wave-core/assets/fonts/material-design-icons/material-icons.css",
+                            "node_modules/codemirror/lib/codemirror.css",
+                            "node_modules/ol/ol.css"
+                        ],
+                        "scripts": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "projects/data-atlas-app/src/environments/environment.ts",
+                                    "with": "projects/data-atlas-app/src/environments/environment.prod.ts"
+                                }
+                            ],
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "extractCss": true,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "5mb",
+                                    "maximumError": "10mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "10kb"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "browserTarget": "data-atlas-app:build"
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "data-atlas-app:build:production"
+                        }
+                    }
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "browserTarget": "data-atlas-app:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "main": "projects/data-atlas-app/src/test.ts",
+                        "polyfills": "projects/data-atlas-app/src/polyfills.ts",
+                        "tsConfig": "projects/data-atlas-app/tsconfig.spec.json",
+                        "karmaConfig": "projects/data-atlas-app/karma.conf.js",
+                        "assets": ["projects/data-atlas-app/src/favicon.ico", "projects/data-atlas-app/src/assets"],
+                        "styles": ["projects/data-atlas-app/src/styles.scss"],
+                        "scripts": []
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-devkit/build-angular:tslint",
+                    "options": {
+                        "tsConfig": [
+                            "projects/data-atlas-app/tsconfig.app.json",
+                            "projects/data-atlas-app/tsconfig.spec.json",
+                            "projects/data-atlas-app/e2e/tsconfig.json"
+                        ],
+                        "exclude": ["**/node_modules/**"]
+                    }
+                },
+                "e2e": {
+                    "builder": "@angular-devkit/build-angular:protractor",
+                    "options": {
+                        "protractorConfig": "projects/data-atlas-app/e2e/protractor.conf.js",
+                        "devServerTarget": "data-atlas-app:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "data-atlas-app:serve:production"
                         }
                     }
                 }
@@ -404,6 +514,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
+                        "allowedCommonJsDependencies": ["dagre-d3", "pbf"],
                         "outputPath": "dist/gfbio-app",
                         "index": "projects/gfbio-app/src/index.html",
                         "main": "projects/gfbio-app/src/main.ts",
@@ -484,13 +595,8 @@
                         "polyfills": "projects/gfbio-app/src/polyfills.ts",
                         "tsConfig": "projects/gfbio-app/tsconfig.spec.json",
                         "karmaConfig": "projects/gfbio-app/karma.conf.js",
-                        "assets": [
-                            "projects/gfbio-app/src/favicon.ico",
-                            "projects/gfbio-app/src/assets"
-                        ],
-                        "styles": [
-                            "projects/gfbio-app/src/styles.scss"
-                        ],
+                        "assets": ["projects/gfbio-app/src/favicon.ico", "projects/gfbio-app/src/assets"],
+                        "styles": ["projects/gfbio-app/src/styles.scss"],
                         "scripts": []
                     }
                 },
@@ -502,9 +608,7 @@
                             "projects/gfbio-app/tsconfig.spec.json",
                             "projects/gfbio-app/e2e/tsconfig.json"
                         ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "exclude": ["**/node_modules/**"]
                     }
                 },
                 "e2e": {
@@ -542,6 +646,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
+                        "allowedCommonJsDependencies": ["dagre-d3", "pbf"],
                         "outputPath": "dist/nature40-app",
                         "index": "projects/nature40-app/src/index.html",
                         "main": "projects/nature40-app/src/main.ts",
@@ -622,13 +727,8 @@
                         "polyfills": "projects/nature40-app/src/polyfills.ts",
                         "tsConfig": "projects/nature40-app/tsconfig.spec.json",
                         "karmaConfig": "projects/nature40-app/karma.conf.js",
-                        "assets": [
-                            "projects/nature40-app/src/favicon.ico",
-                            "projects/nature40-app/src/assets"
-                        ],
-                        "styles": [
-                            "projects/nature40-app/src/styles.scss"
-                        ],
+                        "assets": ["projects/nature40-app/src/favicon.ico", "projects/nature40-app/src/assets"],
+                        "styles": ["projects/nature40-app/src/styles.scss"],
                         "scripts": []
                     }
                 },
@@ -640,9 +740,7 @@
                             "projects/nature40-app/tsconfig.spec.json",
                             "projects/nature40-app/e2e/tsconfig.json"
                         ],
-                        "exclude": [
-                            "**/node_modules/**"
-                        ]
+                        "exclude": ["**/node_modules/**"]
                     }
                 },
                 "e2e": {

@@ -1,5 +1,5 @@
 import {Observable, BehaviorSubject} from 'rxjs';
-import {map, tap, first} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 
 import {
     AfterViewInit,
@@ -17,6 +17,8 @@ import {MatIconRegistry} from '@angular/material/icon';
 import {MatSidenav} from '@angular/material/sidenav';
 import {MatTabGroup} from '@angular/material/tabs';
 import {
+    AddDataComponent,
+    AddDataListButton,
     Layer,
     SidenavContainerComponent,
     LayoutService,
@@ -25,16 +27,17 @@ import {
     NotificationService,
     Config,
     ProjectService,
-    SidenavConfig,
     NavigationButton,
     NavigationComponent,
     ResultTypes,
     MapService,
     MapContainerComponent,
-    RasterLayer,
     WorkspaceSettingsComponent,
     OperatorListComponent,
     OperatorListButtonGroups,
+    TimeConfigComponent,
+    PlotListComponent,
+    SidenavConfig,
 } from 'wave-core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ActivatedRoute} from '@angular/router';
@@ -62,7 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     readonly layerDetailViewVisible$: Observable<boolean>;
 
     readonly navigationButtons = this.setupNavigation();
-    // readonly addAFirstLayerConfig = AppComponent.setupAddDataConfig();
+    readonly addAFirstLayerConfig = AppComponent.setupAddDataConfig();
 
     middleContainerHeight$: Observable<number>;
     bottomContainerHeight$: Observable<number>;
@@ -70,27 +73,26 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     private windowHeight$ = new BehaviorSubject<number>(window.innerHeight);
 
-    constructor(@Inject(Config) readonly config: AppConfig,
-                // readonly layerService: LayerService,
-                readonly layoutService: LayoutService,
-                readonly projectService: ProjectService,
-                readonly vcRef: ViewContainerRef, // reference used by color picker
-                private userService: UserService,
-                private changeDetectorRef: ChangeDetectorRef,
-                private dialog: MatDialog,
-                private iconRegistry: MatIconRegistry,
-                private randomColorService: RandomColorService,
-                private activatedRoute: ActivatedRoute,
-                private notificationService: NotificationService,
-                private mapService: MapService,
-                private sanitizer: DomSanitizer) {
+    constructor(
+        @Inject(Config) readonly config: AppConfig,
+        readonly layoutService: LayoutService,
+        readonly projectService: ProjectService,
+        readonly vcRef: ViewContainerRef, // reference used by color picker
+        private userService: UserService,
+        private changeDetectorRef: ChangeDetectorRef,
+        private dialog: MatDialog,
+        private iconRegistry: MatIconRegistry,
+        private randomColorService: RandomColorService,
+        private activatedRoute: ActivatedRoute,
+        private notificationService: NotificationService,
+        private mapService: MapService,
+        private sanitizer: DomSanitizer,
+    ) {
         this.registerIcons();
 
         vcRef.length; // tslint:disable-line:no-unused-expression // just get rid of unused warning
 
-        this.layersReverse$ = this.projectService.getLayerStream().pipe(
-            map(layers => layers.slice(0).reverse())
-        );
+        this.layersReverse$ = this.projectService.getLayerStream().pipe(map((layers) => layers.slice(0).reverse()));
 
         this.layerListVisible$ = this.layoutService.getLayerListVisibilityStream();
         this.layerDetailViewVisible$ = this.layoutService.getLayerDetailViewVisibilityStream();
@@ -114,14 +116,12 @@ export class AppComponent implements OnInit, AfterViewInit {
         // TODO: remove if table is back
         this.layoutService.setLayerDetailViewVisibility(false);
 
-        this.middleContainerHeight$ = this.layoutService.getMapHeightStream(this.windowHeight$).pipe(
-            tap(() => this.mapComponent.resize()),
-        );
+        this.middleContainerHeight$ = this.layoutService.getMapHeightStream(this.windowHeight$).pipe(tap(() => this.mapComponent.resize()));
         this.bottomContainerHeight$ = this.layoutService.getLayerDetailViewStream(this.windowHeight$);
     }
 
     ngAfterViewInit() {
-        this.layoutService.getSidenavContentComponentStream().subscribe(sidenavConfig => {
+        this.layoutService.getSidenavContentComponentStream().subscribe((sidenavConfig) => {
             this.rightSidenavContainer.load(sidenavConfig);
             if (sidenavConfig) {
                 this.rightSidenav.open();
@@ -129,8 +129,9 @@ export class AppComponent implements OnInit, AfterViewInit {
                 this.rightSidenav.close();
             }
         });
-        // this.projectService.getNewPlotStream()
-        //     .subscribe(() => this.layoutService.setSidenavContentComponent({component: PlotListComponent}));
+        this.projectService
+            .getNewPlotStream()
+            .subscribe(() => this.layoutService.setSidenavContentComponent({component: PlotListComponent}));
 
         // set the stored tab index
         // this.layoutService.getLayerDetailViewTabIndexStream().subscribe(tabIndex => {
@@ -152,31 +153,26 @@ export class AppComponent implements OnInit, AfterViewInit {
         return [
             NavigationComponent.createLoginButton(this.userService, this.layoutService, this.config),
             {
-                sidenavConfig: {component: MockLayersComponent},
+                sidenavConfig: AppComponent.setupAddDataConfig(),
                 icon: 'add',
-                tooltip: 'Mock Data',
+                tooltip: 'Add Data',
             },
-            // {
-            //     sidenavConfig: AppComponent.setupAddDataConfig(),
-            //     icon: 'add',
-            //     tooltip: 'Add Data',
-            // },
             {
                 sidenavConfig: {component: OperatorListComponent, config: {operators: AppComponent.createOperatorListButtons()}},
                 icon: '',
                 svgIcon: 'cogs',
                 tooltip: 'Operators',
             },
-            // {
-            //     sidenavConfig: {component: PlotListComponent},
-            //     icon: 'equalizer',
-            //     tooltip: 'Plots',
-            // },
-            // {
-            //     sidenavConfig: {component: TimeConfigComponent},
-            //     icon: 'access_time',
-            //     tooltip: 'Time',
-            // },
+            {
+                sidenavConfig: {component: PlotListComponent},
+                icon: 'equalizer',
+                tooltip: 'Plots',
+            },
+            {
+                sidenavConfig: {component: TimeConfigComponent},
+                icon: 'access_time',
+                tooltip: 'Time',
+            },
             {
                 sidenavConfig: {component: WorkspaceSettingsComponent},
                 icon: 'settings',
@@ -190,24 +186,30 @@ export class AppComponent implements OnInit, AfterViewInit {
         ];
     }
 
-    // private static setupAddDataConfig(): SidenavConfig {
-    //     return {component: SourceOperatorListComponent, config: {buttons: AppComponent.createSourceOperatorListButtons()}};
-    // }
+    private static setupAddDataConfig(): SidenavConfig {
+        return {component: AddDataComponent, config: {buttons: AppComponent.createAddDataListButtons()}};
+    }
 
-    // private static createSourceOperatorListButtons(): Array<SourceOperatorListButton> {
-    //     return [
-    //         SourceOperatorListComponent.createDataRepositoryButton(),
-    //         SourceOperatorListComponent.createDrawFeaturesButton(),
-    //         ...SourceOperatorListComponent.createCustomFeaturesButtons(),
-    //         {
-    //             name: 'Species Occurrences',
-    //             description: 'Query data from GBIF',
-    //             iconSrc: GFBioSourceType.ICON_URL,
-    //             sidenavConfig: {component: GbifOperatorComponent, keepParent: true},
-    //         },
-    //         SourceOperatorListComponent.createCountryPolygonsButton(),
-    //     ];
-    // }
+    private static createAddDataListButtons(): Array<AddDataListButton> {
+        return [
+            AddDataComponent.createDataSetListButton(),
+            {
+                name: 'Mock data',
+                description: 'Mock data sets',
+                iconSrc: AddDataComponent.createIconDataUrl('mock'),
+                sidenavConfig: {component: MockLayersComponent, keepParent: true},
+            },
+            // SourceOperatorListComponent.createDrawFeaturesButton(),
+            // ...SourceOperatorListComponent.createCustomFeaturesButtons(),
+            // {
+            //     name: 'Species Occurrences',
+            //     description: 'Query data from GBIF',
+            //     iconSrc: GFBioSourceType.ICON_URL,
+            //     sidenavConfig: {component: GbifOperatorComponent, keepParent: true},
+            // },
+            // SourceOperatorListComponent.createCountryPolygonsButton(),
+        ];
+    }
 
     private static createOperatorListButtons(): OperatorListButtonGroups {
         return [
@@ -262,5 +264,4 @@ export class AppComponent implements OnInit, AfterViewInit {
     idFromLayer(index: number, layer: Layer): number {
         return layer.id;
     }
-
 }

@@ -37,10 +37,9 @@
             "ol/style/Stroke": "OlStyleStroke",
             "ol/style/Style": "OlStyleStyle",
             "papaparse": "papaparse",
-            "proj4": "proj4"
+            "proj4": "proj4",
+            "vega-embed": "vegaEmbed"
         }
     },
-    "assets": [
-        "assets"
-    ]
+    "assets": ["assets"]
 }

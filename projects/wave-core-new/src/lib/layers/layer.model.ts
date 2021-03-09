@@ -1,6 +1,7 @@
-import {LayerDict, UUID, ToDict, ColorizerDict, RgbaColor} from '../backend/backend.model';
+import {LayerDict, UUID, ToDict} from '../backend/backend.model';
 import {AbstractSymbology, MappingRasterSymbology, VectorSymbology, PointSymbology} from './symbology/symbology.model';
 import {Unit} from '../operators/unit.model';
+import {ColorBreakpointDict} from '../colors/color-breakpoint.model';
 
 export type LayerType = 'raster' | 'vector';
 
@@ -35,12 +36,12 @@ export abstract class Layer implements HasLayerId, HasLayerType, ToDict<LayerDic
     }
 
     protected constructor(config: {
-        id?: number,
-        name: string,
-        workflowId: string,
-        isVisible: boolean,
-        isLegendVisible: boolean,
-        symbology: AbstractSymbology,
+        id?: number;
+        name: string;
+        workflowId: string;
+        isVisible: boolean;
+        isLegendVisible: boolean;
+        symbology: AbstractSymbology;
     }) {
         this.id = config.id ?? Layer.nextLayerId++;
 
@@ -53,12 +54,12 @@ export abstract class Layer implements HasLayerId, HasLayerType, ToDict<LayerDic
 
     // TODO: remove method, here?
     abstract updateFields(changes: {
-        id?: number,
-        name?: string,
-        workflowId?: string,
-        isVisible?: boolean,
-        isLegendVisible?: boolean,
-        symbology?: AbstractSymbology,
+        id?: number;
+        name?: string;
+        workflowId?: string;
+        isVisible?: boolean;
+        isLegendVisible?: boolean;
+        symbology?: AbstractSymbology;
     }): Layer;
 
     abstract equals(other: Layer): boolean;
@@ -77,21 +78,21 @@ export class VectorLayer extends Layer {
             workflowId: dict.workflow,
             isLegendVisible: dict.visibility.legend,
             isVisible: dict.visibility.data,
-            symbology: PointSymbology.createSymbology({
+            symbology: (PointSymbology.createSymbology({
                 fillRGBA: [255, 0, 0], // red
                 radius: 10,
                 clustered: false,
-            }) as any as VectorSymbology // TODO: get symbology from meta data
+            }) as any) as VectorSymbology, // TODO: get symbology from meta data
         });
     }
 
     constructor(config: {
-        id?: number,
-        name: string,
-        workflowId: string,
-        isVisible: boolean,
-        isLegendVisible: boolean,
-        symbology: VectorSymbology,
+        id?: number;
+        name: string;
+        workflowId: string;
+        isVisible: boolean;
+        isLegendVisible: boolean;
+        symbology: VectorSymbology;
     }) {
         super(config);
     }
@@ -106,17 +107,17 @@ export class VectorLayer extends Layer {
             visibility: {
                 data: this.isVisible,
                 legend: this.isLegendVisible,
-            }
+            },
         };
     }
 
     updateFields(changes: {
-        id?: number,
-        name?: string,
-        workflowId?: string,
-        isVisible?: boolean,
-        isLegendVisible?: boolean,
-        symbology?: VectorSymbology,
+        id?: number;
+        name?: string;
+        workflowId?: string;
+        isVisible?: boolean;
+        isLegendVisible?: boolean;
+        symbology?: VectorSymbology;
     }): VectorLayer {
         return new VectorLayer({
             id: changes.id ?? this.id,
@@ -133,14 +134,15 @@ export class VectorLayer extends Layer {
             return false;
         }
 
-        return this.id === other.id
-            && this.name === other.name
-            && this.workflowId === other.workflowId
-            && this.isVisible === other.isVisible
-            && this.isLegendVisible === other.isLegendVisible
-            && this.symbology === other.symbology;
+        return (
+            this.id === other.id &&
+            this.name === other.name &&
+            this.workflowId === other.workflowId &&
+            this.isVisible === other.isVisible &&
+            this.isLegendVisible === other.isLegendVisible &&
+            this.symbology === other.symbology
+        );
     }
-
 }
 
 export class RasterLayer extends Layer {
@@ -156,7 +158,7 @@ export class RasterLayer extends Layer {
             const linearGradient = colorizerDict.LinearGradient;
             symbology = new MappingRasterSymbology({
                 colorizer: {
-                    breakpoints: linearGradient.breakpoints.map(breakpoint => {
+                    breakpoints: linearGradient.breakpoints.map((breakpoint) => {
                         return {
                             value: breakpoint.value,
                             rgba: breakpoint.color,
@@ -182,7 +184,32 @@ export class RasterLayer extends Layer {
         }
 
         if (colorizerDict.Palette) {
-            // TODO: implement
+            const palette = colorizerDict.Palette;
+
+            const breakpoints = new Array<ColorBreakpointDict>();
+            for (const valueAsString of Object.keys(palette.colors)) {
+                breakpoints.push({
+                    value: parseInt(valueAsString, 10),
+                    rgba: palette.colors[valueAsString],
+                });
+            }
+
+            symbology = new MappingRasterSymbology({
+                colorizer: {
+                    breakpoints,
+                    type: 'palette',
+                },
+                noDataColor: {
+                    value: undefined, // TODO: get from metadata
+                    rgba: palette.no_data_color,
+                },
+                opacity: 1, // TODO: get from metadata
+                overflowColor: {
+                    value: undefined, // TODO: get from metadata
+                    rgba: palette.no_data_color,
+                },
+                unit: Unit.defaultUnit, // TODO: get from metadata
+            });
         }
 
         if (colorizerDict.Rgba) {
@@ -198,28 +225,28 @@ export class RasterLayer extends Layer {
             isLegendVisible: dict.visibility.legend,
             isVisible: dict.visibility.data,
             workflowId: dict.workflow,
-            symbology
+            symbology,
         });
     }
 
     constructor(config: {
-        id?: number,
-        name: string,
-        workflowId: string,
-        isVisible: boolean,
-        isLegendVisible: boolean,
-        symbology: MappingRasterSymbology,
+        id?: number;
+        name: string;
+        workflowId: string;
+        isVisible: boolean;
+        isLegendVisible: boolean;
+        symbology: MappingRasterSymbology;
     }) {
         super(config);
     }
 
     updateFields(changes: {
-        id?: number,
-        name?: string,
-        workflowId?: string,
-        isVisible?: boolean,
-        isLegendVisible?: boolean,
-        symbology?: MappingRasterSymbology,
+        id?: number;
+        name?: string;
+        workflowId?: string;
+        isVisible?: boolean;
+        isLegendVisible?: boolean;
+        symbology?: MappingRasterSymbology;
     }): RasterLayer {
         return new RasterLayer({
             id: changes.id ?? this.id,
@@ -236,59 +263,31 @@ export class RasterLayer extends Layer {
             return false;
         }
 
-        return this.id === other.id
-            && this.name === other.name
-            && this.workflowId === other.workflowId
-            && this.isVisible === other.isVisible
-            && this.isLegendVisible === other.isLegendVisible
-            && this.symbology === other.symbology;
+        return (
+            this.id === other.id &&
+            this.name === other.name &&
+            this.workflowId === other.workflowId &&
+            this.isVisible === other.isVisible &&
+            this.isLegendVisible === other.isLegendVisible &&
+            this.symbology === other.symbology
+        );
     }
 
     toDict(): LayerDict {
-        let colorizerDict: ColorizerDict;
-        const colorizer = this.symbology.colorizer;
-
-        switch (colorizer.type) {
-            case 'gradient':
-                colorizerDict = {
-                    LinearGradient: {
-                        breakpoints: colorizer.breakpoints.map(breakpoint => {
-                            return {
-                                value: typeof breakpoint.value === 'string' ? Number.parseFloat(breakpoint.value) : breakpoint.value,
-                                color: breakpoint.rgba.rgbaTuple().map(Math.round) as RgbaColor,
-                            };
-                        }),
-                        default_color: this.symbology.overflowColor.rgba.rgbaTuple().map(Math.round) as RgbaColor,
-                        no_data_color: this.symbology.noDataColor.rgba.rgbaTuple().map(Math.round) as RgbaColor,
-                    },
-                };
-                break;
-            case 'logarithmic':
-                // TODO: implement
-                break;
-            case 'palette':
-                // TODO: implement
-                break;
-            case 'rgba_composite':
-                // TODO: implement
-                break;
-        }
-
         return {
             name: this.name,
             workflow: this.workflowId,
             info: {
                 Raster: {
-                    colorizer: colorizerDict,
+                    colorizer: this.symbology.toColorizerDict(),
                 },
             },
             visibility: {
                 data: this.isVisible,
                 legend: this.isLegendVisible,
-            }
+            },
         };
     }
-
 }
 
 export interface HasLayerId {

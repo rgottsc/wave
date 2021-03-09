@@ -2,7 +2,7 @@ import {Observable, Subscription} from 'rxjs';
 import {Component, OnDestroy, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
-import {LayoutService} from '../../layout.service';
+import {LayoutService, SidenavConfig} from '../../layout.service';
 import {SymbologyType, AbstractSymbology} from '../symbology/symbology.model';
 import {RenameLayerComponent} from '../rename-layer/rename-layer.component';
 import {LoadingState} from '../../project/loading-state.model';
@@ -12,6 +12,8 @@ import {ProjectService} from '../../project/project.service';
 import {Config} from '../../config.service';
 import {SymbologyEditorComponent} from '../symbology/symbology-editor/symbology-editor.component';
 import {filter, map, startWith} from 'rxjs/operators';
+import {AddDataComponent} from '../../datasets/add-data/add-data.component';
+import {LineageGraphComponent} from '../../provenance/lineage-graph/lineage-graph.component';
 
 /**
  * The layer list component displays active layers, legends and other controlls.
@@ -23,7 +25,6 @@ import {filter, map, startWith} from 'rxjs/operators';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayerListComponent implements OnDestroy {
-
     /**
      * The desired height of the list
      */
@@ -33,7 +34,7 @@ export class LayerListComponent implements OnDestroy {
      * The empty list shows a button to trigger the generation of a first layer.
      * This sidenav config is called to present a date listing or a similar dialog in the sidenav.
      */
-    // @Input() addAFirstLayerSidenavConfig: SidenavConfig = {component: SourceOperatorListComponent};
+    @Input() addAFirstLayerSidenavConfig: SidenavConfig = {component: AddDataComponent};
 
     /**
      * sends if the layerlist should be visible
@@ -55,7 +56,7 @@ export class LayerListComponent implements OnDestroy {
     readonly ST = SymbologyType;
     readonly LoadingState = LoadingState;
     readonly RenameLayerComponent = RenameLayerComponent;
-    // readonly LineageGraphComponent = LineageGraphComponent;
+    readonly LineageGraphComponent = LineageGraphComponent;
     // readonly LayerExportComponent = LayerExportComponent;
     // readonly LayerShareComponent = LayerShareComponent;
     // readonly SourceOperatorListComponent = SourceOperatorListComponent;
@@ -67,27 +68,31 @@ export class LayerListComponent implements OnDestroy {
     /**
      * The component constructor. It injects angular and wave services.
      */
-    constructor(public dialog: MatDialog,
-                public layoutService: LayoutService,
-                public projectService: ProjectService,
-                // public layerService: LayerService,
-                public mapService: MapService,
-                public config: Config,
-                public changeDetectorRef: ChangeDetectorRef) {
+    constructor(
+        public dialog: MatDialog,
+        public layoutService: LayoutService,
+        public projectService: ProjectService,
+        // public layerService: LayerService,
+        public mapService: MapService,
+        public config: Config,
+        public changeDetectorRef: ChangeDetectorRef,
+    ) {
         this.layerListVisibility$ = this.layoutService.getLayerListVisibilityStream();
 
-        this.subscriptions.push(this.projectService.getLayerStream().subscribe(layerList => {
-            if (layerList !== this.layerList) {
-                this.layerList = layerList;
-            }
-            this.changeDetectorRef.markForCheck();
-        }));
+        this.subscriptions.push(
+            this.projectService.getLayerStream().subscribe((layerList) => {
+                if (layerList !== this.layerList) {
+                    this.layerList = layerList;
+                }
+                this.changeDetectorRef.markForCheck();
+            }),
+        );
 
         this.mapIsGrid$ = this.mapService.isGrid$;
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach(s => s.unsubscribe());
+        this.subscriptions.forEach((s) => s.unsubscribe());
     }
 
     /**
@@ -115,7 +120,7 @@ export class LayerListComponent implements OnDestroy {
         return this.projectService.getLayerChangesStream(layer).pipe(
             startWith(layer),
             filter((lc) => !!lc.symbology),
-            map(() => layer.symbology)
+            map(() => layer.symbology),
         );
     }
 

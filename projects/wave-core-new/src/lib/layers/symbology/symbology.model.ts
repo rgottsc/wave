@@ -3,6 +3,7 @@ import {Color, RgbaLike, RgbaTuple, TRANSPARENT, WHITE} from '../../colors/color
 import {ColorizerData, IColorizerData, MappingRasterColorizerDict} from '../../colors/colorizer-data.model';
 import {ColorBreakpoint, ColorBreakpointDict} from '../../colors/color-breakpoint.model';
 import {Colormap} from '../../colors/colormaps/colormap.model';
+import {ColorizerDict, RgbaColor} from '../../backend/backend.model';
 
 /**
  * List of the symbology types used in WAVE
@@ -17,7 +18,7 @@ export enum SymbologyType {
     ICON_POINT, // RESERVED
     COMPLEX_POINT,
     COMPLEX_VECTOR,
-    COMPLEX_LINE
+    COMPLEX_LINE,
 }
 
 // List of constants used by layer symbology.
@@ -41,8 +42,7 @@ export interface SymbologyDict {
 }
 
 // tslint:disable-next-line: no-empty-interface
-export interface ISymbology {
-}
+export interface ISymbology {}
 
 export type StrokeDashStyle = Array<number>;
 
@@ -50,13 +50,10 @@ export type StrokeDashStyle = Array<number>;
  * The abstract symbology class with common methods.
  */
 export abstract class AbstractSymbology implements ISymbology {
-
     /**
      * Deserialization logic to generate any Symbology from SymbologyDict.
      */
-    static fromDict(
-        dict: SymbologyDict
-    ): AbstractSymbology {
+    static fromDict(dict: SymbologyDict): AbstractSymbology {
         switch (dict.symbologyType) {
             case SymbologyType[SymbologyType.SIMPLE_POINT]:
             case SymbologyType[SymbologyType.COMPLEX_POINT]:
@@ -139,9 +136,10 @@ interface VectorSymbologyDict extends SymbologyDict {
  */
 export abstract class AbstractVectorSymbology extends AbstractSymbology {
     private _fillColorBreakpoint: ColorBreakpoint = new ColorBreakpoint({rgba: DEFAULT_VECTOR_FILL_COLOR, value: 'Default fill color'});
-    private _strokeColorBreakpoint: ColorBreakpoint = new ColorBreakpoint(
-        {rgba: DEFAULT_VECTOR_STROKE_COLOR, value: 'Default stroke color'}
-    );
+    private _strokeColorBreakpoint: ColorBreakpoint = new ColorBreakpoint({
+        rgba: DEFAULT_VECTOR_STROKE_COLOR,
+        value: 'Default stroke color',
+    });
 
     // common vector symbology fill
     fillColorizer: ColorizerData;
@@ -268,19 +266,34 @@ export abstract class AbstractVectorSymbology extends AbstractSymbology {
      */
     equals(other: AbstractVectorSymbology) {
         if (other instanceof AbstractVectorSymbology) {
-            return this.fillColorBreakpoint.equals(other.fillColorBreakpoint)
-                && this.strokeColorBreakpoint.equals(other.strokeColorBreakpoint)
-                && this.strokeWidth === other.strokeWidth
-                && this.describesElementFill() === other.describesElementFill()
-                && this.describesPointsWithRadius() === other.describesPointsWithRadius()
-                && this.fillColorizer && this.fillColorizer.equals(other.fillColorizer)
-                && this.fillColorAttribute && other.fillColorAttribute && this.fillColorAttribute === other.fillColorAttribute
-                && this.strokeColorizer && this.strokeColorizer.equals(other.strokeColorizer)
-                && this.strokeColorAttribute && other.strokeColorAttribute && this.strokeColorAttribute === other.strokeColorAttribute
-                && this.strokeDashStyle && other.strokeDashStyle && this.strokeDashStyle === other.strokeDashStyle
-                && this.textColor && this.textColor.equals(other.textColor)
-                && this.textStrokeWidth && other.textStrokeWidth && this.textStrokeWidth === other.textStrokeWidth
-                && this.textAttribute && other.textAttribute && this.textAttribute === other.textAttribute;
+            return (
+                this.fillColorBreakpoint.equals(other.fillColorBreakpoint) &&
+                this.strokeColorBreakpoint.equals(other.strokeColorBreakpoint) &&
+                this.strokeWidth === other.strokeWidth &&
+                this.describesElementFill() === other.describesElementFill() &&
+                this.describesPointsWithRadius() === other.describesPointsWithRadius() &&
+                this.fillColorizer &&
+                this.fillColorizer.equals(other.fillColorizer) &&
+                this.fillColorAttribute &&
+                other.fillColorAttribute &&
+                this.fillColorAttribute === other.fillColorAttribute &&
+                this.strokeColorizer &&
+                this.strokeColorizer.equals(other.strokeColorizer) &&
+                this.strokeColorAttribute &&
+                other.strokeColorAttribute &&
+                this.strokeColorAttribute === other.strokeColorAttribute &&
+                this.strokeDashStyle &&
+                other.strokeDashStyle &&
+                this.strokeDashStyle === other.strokeDashStyle &&
+                this.textColor &&
+                this.textColor.equals(other.textColor) &&
+                this.textStrokeWidth &&
+                other.textStrokeWidth &&
+                this.textStrokeWidth === other.textStrokeWidth &&
+                this.textAttribute &&
+                other.textAttribute &&
+                this.textAttribute === other.textAttribute
+            );
         }
         return false;
     }
@@ -300,12 +313,12 @@ export abstract class AbstractVectorSymbology extends AbstractSymbology {
         if (config.fillColorAttribute) {
             this.fillColorAttribute = config.fillColorAttribute;
         }
-        this.fillColorizer = (config.fillColorizer) ? ColorizerData.fromDict(config.fillColorizer) : ColorizerData.empty();
+        this.fillColorizer = config.fillColorizer ? ColorizerData.fromDict(config.fillColorizer) : ColorizerData.empty();
 
         if (config.strokeColorAttribute) {
             this.strokeColorAttribute = config.strokeColorAttribute;
         }
-        this.strokeColorizer = (config.strokeColorizer) ? ColorizerData.fromDict(config.strokeColorizer) : ColorizerData.empty();
+        this.strokeColorizer = config.strokeColorizer ? ColorizerData.fromDict(config.strokeColorizer) : ColorizerData.empty();
 
         if (config.strokeDashStyle) {
             this.strokeDashStyle = config.strokeDashStyle;
@@ -317,7 +330,6 @@ export abstract class AbstractVectorSymbology extends AbstractSymbology {
         this.textColor = config.textColor ? Color.fromRgbaLike(config.textColor) : WHITE;
         this.textStrokeWidth = config.textStrokeWidth ? config.textStrokeWidth : Math.ceil(config.strokeWidth * 0.1);
     }
-
 
     toDict(): VectorSymbologyDict {
         return {
@@ -398,7 +410,6 @@ export class LineSymbology extends AbstractVectorSymbology implements VectorSymb
  * A class that contains properties for drawing vectors such as polygons
  */
 export class VectorSymbology extends AbstractVectorSymbology implements VectorSymbologyConfig {
-
     protected constructor(config: VectorSymbologyConfig) {
         super(config);
     }
@@ -436,7 +447,6 @@ export class VectorSymbology extends AbstractVectorSymbology implements VectorSy
  * A class that contains properties for drawing points
  */
 export class PointSymbology extends AbstractVectorSymbology implements PointSymbologyConfig {
-
     radiusAttribute: string = undefined;
     radiusFactor = 1.0;
     radius: number = DEFAULT_POINT_RADIUS;
@@ -452,8 +462,8 @@ export class PointSymbology extends AbstractVectorSymbology implements PointSymb
         if (config.radiusAttribute) {
             this.radiusAttribute = config.radiusAttribute;
         }
-        this.clustered = (config.clustered) ? config.clustered : false;
-        this.radiusFactor = (config.radiusFactor) ? config.radiusFactor : 1.0;
+        this.clustered = config.clustered ? config.clustered : false;
+        this.radiusFactor = config.radiusFactor ? config.radiusFactor : 1.0;
     }
 
     /**
@@ -484,8 +494,12 @@ export class PointSymbology extends AbstractVectorSymbology implements PointSymb
 
     equals(other: AbstractVectorSymbology) {
         if (other instanceof PointSymbology) {
-            return super.equals(other as AbstractVectorSymbology)
-                && this.radiusAttribute && other.radiusAttribute && this.radiusAttribute === other.radiusAttribute;
+            return (
+                super.equals(other as AbstractVectorSymbology) &&
+                this.radiusAttribute &&
+                other.radiusAttribute &&
+                this.radiusAttribute === other.radiusAttribute
+            );
         }
         return false;
     }
@@ -557,7 +571,6 @@ export interface RasterSymbologyDict extends SymbologyDict {
     overflowColor?: ColorBreakpointDict;
 }
 
-
 /**
  * Configuration interface with optional fields for MappingRasterSymbology.
  */
@@ -606,8 +619,7 @@ export abstract class AbstractRasterSymbology extends AbstractSymbology implemen
     abstract clone(): AbstractRasterSymbology;
 
     equals(other: AbstractRasterSymbology) {
-        return this.opacity === other.opacity
-            && this.unit === other.unit;
+        return this.opacity === other.opacity && this.unit === other.unit;
     }
 
     abstract toDict(): RasterSymbologyDict;
@@ -616,9 +628,7 @@ export abstract class AbstractRasterSymbology extends AbstractSymbology implemen
 /**
  * The raster symbology class with colorizer information, rendered by the mapping backend.
  */
-export class MappingRasterSymbology extends AbstractRasterSymbology
-    implements IColorizerRasterSymbology {
-
+export class MappingRasterSymbology extends AbstractRasterSymbology implements IColorizerRasterSymbology {
     colorizer: ColorizerData;
     noDataColor: ColorBreakpoint;
     overflowColor: ColorBreakpoint;
@@ -632,11 +642,14 @@ export class MappingRasterSymbology extends AbstractRasterSymbology
 
     constructor(config: IColorizerRasterSymbology) {
         super(config);
-        this.colorizer = (config.colorizer) ? new ColorizerData(config.colorizer)
+        this.colorizer = config.colorizer
+            ? new ColorizerData(config.colorizer)
             : Colormap.createColorizerDataWithName('VIRIDIS', config.unit.min, config.unit.max);
-        this.noDataColor = (config.noDataColor) ? new ColorBreakpoint(config.noDataColor)
+        this.noDataColor = config.noDataColor
+            ? new ColorBreakpoint(config.noDataColor)
             : new ColorBreakpoint({rgba: TRANSPARENT, value: 'NoData'});
-        this.overflowColor = (config.overflowColor) ? new ColorBreakpoint(config.overflowColor)
+        this.overflowColor = config.overflowColor
+            ? new ColorBreakpoint(config.overflowColor)
             : new ColorBreakpoint({rgba: TRANSPARENT, value: 'Overflow'});
     }
 
@@ -652,16 +665,57 @@ export class MappingRasterSymbology extends AbstractRasterSymbology
         return this.clone() as IColorizerRasterSymbology;
     }
 
+    toColorizerDict(): ColorizerDict {
+        switch (this.colorizer.type) {
+            case 'gradient':
+                return {
+                    LinearGradient: {
+                        breakpoints: this.colorizer.breakpoints.map((breakpoint) => {
+                            return {
+                                value: typeof breakpoint.value === 'string' ? Number.parseFloat(breakpoint.value) : breakpoint.value,
+                                color: breakpoint.rgba.rgbaTuple().map(Math.round) as RgbaColor,
+                            };
+                        }),
+                        default_color: this.overflowColor.rgba.rgbaTuple().map(Math.round) as RgbaColor,
+                        no_data_color: this.noDataColor.rgba.rgbaTuple().map(Math.round) as RgbaColor,
+                    },
+                };
+            case 'logarithmic':
+                // TODO: implement
+                return undefined;
+            case 'palette':
+                const colors: {[numberValue: string]: RgbaColor} = {};
+                for (const breakpoint of this.colorizer.breakpoints) {
+                    colors[breakpoint.value.toString()] = breakpoint.rgba.rgbaTuple().map(Math.round) as RgbaColor;
+                }
+
+                return {
+                    Palette: {
+                        colors,
+                        no_data_color: this.noDataColor.rgba.rgbaTuple().map(Math.round) as RgbaColor,
+                    },
+                };
+            case 'rgba_composite':
+                // TODO: implement
+                return undefined;
+        }
+    }
+
     clone(): MappingRasterSymbology {
         return new MappingRasterSymbology(this);
     }
 
     equals(other: AbstractRasterSymbology) {
         if (other instanceof MappingRasterSymbology) {
-            return super.equals(other as AbstractRasterSymbology)
-                && this.colorizer && this.colorizer.equals(other.colorizer)
-                && this.noDataColor && this.noDataColor.equals(other.noDataColor)
-                && this.overflowColor && this.overflowColor.equals(other.overflowColor);
+            return (
+                super.equals(other as AbstractRasterSymbology) &&
+                this.colorizer &&
+                this.colorizer.equals(other.colorizer) &&
+                this.noDataColor &&
+                this.noDataColor.equals(other.noDataColor) &&
+                this.overflowColor &&
+                this.overflowColor.equals(other.overflowColor)
+            );
         }
         return false;
     }
@@ -673,7 +727,7 @@ export class MappingRasterSymbology extends AbstractRasterSymbology
             unit: this.unit.toDict(),
             colorizer: this.colorizer.toDict(),
             noDataColor: this.noDataColor.toDict(),
-            overflowColor: this.overflowColor.toDict()
+            overflowColor: this.overflowColor.toDict(),
         };
     }
 
@@ -685,7 +739,7 @@ export class MappingRasterSymbology extends AbstractRasterSymbology
             type: this.colorizer.type,
             nodata: this.noDataColor.asMappingRasterColorizerBreakpoint(),
             default: this.overflowColor.asMappingRasterColorizerBreakpoint(),
-            breakpoints: this.colorizer.breakpoints.map(br => br.asMappingRasterColorizerBreakpoint())
+            breakpoints: this.colorizer.breakpoints.map((br) => br.asMappingRasterColorizerBreakpoint()),
         };
         return JSON.stringify(mcbs);
     }
